@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
-validateAdmin = async (req, res, next) => {
+const validateAdmin = async (req, res, next) => {
   try {
     const token = req.cookies.token
     if (!token) return res.status(403).send('You need to login first')
@@ -20,9 +20,11 @@ validateAdmin = async (req, res, next) => {
   }
 }
 
-userIsLoggedIn = async (req, res, next) => {
-  if (req.isAuthenticated && req.isAuthenticated()) return next()
-  res.send('User Not Found!')
+const userIsLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next() // User is authenticated
+  }
+  res.redirect('/users/login') // Redirect if not authenticated
 }
 
 module.exports = { validateAdmin, userIsLoggedIn }

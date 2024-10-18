@@ -2,42 +2,66 @@ const express = require('express')
 const router = express.Router()
 const { productModel, validateProduct } = require('../models/product')
 const { categoryModel } = require('../models/category')
+const { cartModel, validateCart } = require('../models/cart')
 const imagekit = require('../config/imagekit')
 const { validateAdmin, userIsLoggedIn } = require('../middlewares/auth')
 
 router.get('/', async (req, res) => {
+  let someThingInCart = false;
+  let cartCount = 0;
+
   try {
+    // Aggregate products by category
     let result = await productModel.aggregate([
-      // Step 1: Group products by category
       {
         $group: {
-          _id: '$category', // Group by the category field
-          products: { $push: '$$ROOT' } // Push the entire product document into an array
+          _id: '$category',
+          products: { $push: '$$ROOT' }
         }
       },
-      // Step 2: Limit the array of products to 10 items per category
       {
         $project: {
-          _id: 0, // Exclude the _id field
-          category: '$_id', // Rename _id back to category
-          products: { $slice: ['$products', 10] } // Limit products to the first 10
+          _id: 0,
+          category: '$_id',
+          products: { $slice: ['$products', 10] }
         }
       }
-    ])
+    ]);
 
-    let rnproducts = await productModel.aggregate([{ $sample: { size: 3 } }])
+    // Check if the user is authenticated
+    let cart;
+    if (req.session.passport && req.session.passport.user) {
+      cart = await cartModel.findOne({ user: req.session.passport.user });
+
+      // Check if the cart exists and has products
+      if (cart && cart.products) {
+        someThingInCart = true;
+        cartCount = cart.products.length; // Safe to access products here
+      }
+    }
+
+    // Fetch 3 random products
+    let rnproducts = await productModel.aggregate([{ $sample: { size: 3 } }]);
 
     // Format the result into separate objects for each category
     const formattedResult = result.reduce((acc, category) => {
-      acc[category.category] = category.products // Create a new key for each category
-      return acc
-    }, {})
+      acc[category.category] = category.products;
+      return acc;
+    }, {});
 
-    res.render(`index`, { products: formattedResult, rnproducts })
+    // Render the index page with necessary data
+    res.render('index', {
+      products: formattedResult,
+      rnproducts,
+      someThingInCart,
+      cartCount
+    });
   } catch (error) {
-    res.status(500).send({ message: 'Error fetching products' })
+    console.error('Error fetching products:', error);
+    res.status(500).send('The error is occurring: ' + error);
   }
-})
+});
+
 
 router.get('/delete/:id', validateAdmin, async (req, res) => {
   try {

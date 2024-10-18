@@ -16,7 +16,12 @@ router.get(
     successRedirect: '/products',
     failureRedirect: '/'
   }),
-  (req, res) => {}
+  (req, res) => {
+    req.login(req.user, err => {
+      if (err) return res.status(500).send('Login failed')
+      res.redirect('/') // Redirect to home or intended page
+    })
+  }
 )
 
 router.get('/logout', (req, res, next) => {

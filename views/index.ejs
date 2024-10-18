@@ -95,33 +95,34 @@
                                 <%= elem.name %>
                             </p>
                             <a class="px-4 text-white text-xs rounded mt-2 inline-block py-1 bg-green-700"
-                                href="/cart/add/">ADD</a>
+                                href="/cart/add/<%= elem._id %>">ADD</a>
                         </div>
                        <% }) %>
                             
                     </div>
                 </div>
             <% } %>
-
-                        <div class="py-20"></div>
-                        <!-- Footer -->
-                        <div class="bg-white p-4 rounded-lg shadow fixed bottom-0 inset-x-0">
-                            <div class="flex justify-between items-center mb-10">
-                                <div>
-                                    <p class="text-sm">Get FREE delivery</p>
-                                    <p class="text-xs text-gray-500">Add products worth ₹236 more</p>
-                                </div>
-                                <button class="text-blue-500">See all coupons</button>
+                <% if(someThingInCart){ %>
+                    <div class="py-20"></div>
+                    <!-- Footer -->
+                    <div class="bg-white p-4 rounded-lg shadow fixed bottom-0 inset-x-0">
+                        <div class="flex justify-between items-center mb-10">
+                            <div>
+                                <p class="text-sm">Get FREE delivery</p>
+                                <p class="text-xs text-gray-500">Add products worth ₹236 more</p>
                             </div>
-                            <div class="flex justify-between items-center mt-2">
-                                <div>
-                                    20 Item
-                                </div>
-                                <a href="/cart"
-                                    class="flex items-center justify-center px-32 py-3 bg-green-700 text-white rounded-lg"><span
-                                        class="text-lg">Next</span><i class="text-2xl ri-arrow-right-s-fill"></i></a>
-                            </div>
+                            <button class="text-blue-500">See all coupons</button>
                         </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <div>
+                                <%= cartCount %> Item
+                            </div>
+                            <a href="/cart"
+                                class="flex items-center justify-center px-32 py-3 bg-green-700 text-white rounded-lg"><span
+                                    class="text-lg">Next</span><i class="text-2xl ri-arrow-right-s-fill"></i></a>
+                        </div>
+                    </div>
+                <% } %>
         </div>
 
         <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>

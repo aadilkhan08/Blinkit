@@ -25,14 +25,17 @@ passport.use(
     }
   )
 )
-
 passport.serializeUser((user, cb) => {
-  return cb(null, user._id)
+  cb(null, user._id) // Store user ID in session
 })
 
 passport.deserializeUser(async (id, cb) => {
-  let user = await userModel.findOne({ _id: id })
-  cb(null, user)
+  try {
+    const user = await userModel.findById(id)
+    cb(null, user) // Attach user object to req.user
+  } catch (err) {
+    cb(err, null)
+  }
 })
 
 module.exports = passport

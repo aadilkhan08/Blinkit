@@ -4,6 +4,7 @@ const path = require('path')
 const cors = require('cors')
 const passport = require('passport')
 const helmet = require('helmet')
+const flash = require('connect-flash')
 const expressSession = require('express-session')
 const indexRouter = require('./routes/index')
 const adminRoute = require('./routes/admin')
@@ -27,6 +28,7 @@ connectDB()
 // Middleware setup
 app.use(cors())
 app.use(helmet())
+app.use(flash())
 app.set('view engine', 'ejs')
 app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
@@ -37,17 +39,17 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'DEVELOPMENT', // Use secure cookies in production
-      maxAge: null, // No expiration date (expires on tab close)
-    },
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'DEVELOPMENT', // Secure cookies in production
+      maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
+    }
   })
 )
+app.use(passport.initialize()) // Passport initialization
+app.use(passport.session())
 
 app.use(fileUpload())
 app.use(cookieParser())
-app.use(passport.initialize()); // Passport initialization
-app.use(passport.session()); // Passport session middleware
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
