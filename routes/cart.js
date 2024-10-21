@@ -34,7 +34,7 @@ router.get('/', userIsLoggedIn, async (req, res) => {
     })
 
     let finalArray = Object.values(cartDataStructure)
-    res.render('cart', { cart: finalArray, finalPrice: cart.totalPricing })
+    res.render('cart', { cart: finalArray, finalPrice: cart.totalPricing + 34 })
   } catch (err) {
     console.error('Error fetching cart:', err)
     res.status(500).send('Internal Server Error')

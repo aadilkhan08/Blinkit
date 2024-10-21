@@ -7,8 +7,8 @@ const imagekit = require('../config/imagekit')
 const { validateAdmin, userIsLoggedIn } = require('../middlewares/auth')
 
 router.get('/', async (req, res) => {
-  let someThingInCart = false;
-  let cartCount = 0;
+  let someThingInCart = false
+  let cartCount = 0
 
   try {
     // Aggregate products by category
@@ -26,42 +26,41 @@ router.get('/', async (req, res) => {
           products: { $slice: ['$products', 10] }
         }
       }
-    ]);
+    ])
 
     // Check if the user is authenticated
-    let cart;
+    let cart
     if (req.session.passport && req.session.passport.user) {
-      cart = await cartModel.findOne({ user: req.session.passport.user });
+      cart = await cartModel.findOne({ user: req.session.passport.user })
 
       // Check if the cart exists and has products
       if (cart && cart.products) {
-        someThingInCart = true;
-        cartCount = cart.products.length; // Safe to access products here
+        someThingInCart = true
+        cartCount = cart.products.length // Safe to access products here
       }
     }
 
     // Fetch 3 random products
-    let rnproducts = await productModel.aggregate([{ $sample: { size: 3 } }]);
+    let rnproducts = await productModel.aggregate([{ $sample: { size: 3 } }])
 
     // Format the result into separate objects for each category
     const formattedResult = result.reduce((acc, category) => {
-      acc[category.category] = category.products;
-      return acc;
-    }, {});
+      acc[category.category] = category.products
+      return acc
+    }, {})
 
     // Render the index page with necessary data
     res.render('index', {
       products: formattedResult,
       rnproducts,
       someThingInCart,
-      cartCount
-    });
+      cartCount: cart ? cart.products.length : 0
+    })
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).send('The error is occurring: ' + error);
+    console.error('Error fetching products:', error)
+    res.status(500).send('The error is occurring: ' + error)
   }
-});
-
+})
 
 router.get('/delete/:id', validateAdmin, async (req, res) => {
   try {
